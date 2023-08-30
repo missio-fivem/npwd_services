@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { NuiProvider } from 'react-fivem-hooks';
-import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
-import { Header } from './styles/header.styles';
-import { IPhoneSettings } from '@project-error/npwd-types';
-import { i18n } from 'i18next';
-import { IconButton, Theme, StyledEngineProvider, ThemeProvider, Typography } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
-import { Player } from './types/service';
-import { MockPlayers } from './utils/constants';
-import fetchNui from './utils/fetchNui';
-import { ServerPromiseResp } from './types/common';
-import { PlayersList } from './components/PlayersList';
+import React, { useEffect, useState } from "react";
+import { NuiProvider } from "react-fivem-hooks";
+import { Route, useHistory } from "react-router-dom";
+import styled from "styled-components";
+import { Header } from "./styles/header.styles";
+import { IPhoneSettings } from "@project-error/npwd-types";
+import { i18n } from "i18next";
+import {
+  IconButton,
+  Theme,
+  StyledEngineProvider,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { Job } from "./types/service";
+import { MockJobs } from "./utils/constants";
+import fetchNui from "./utils/fetchNui";
+import { ServerPromiseResp } from "./types/common";
+import { JobsList } from "./components/JobsList";
+import { isEnvBrowser } from "./utils/misc";
+import { ViewMessages } from "./components/ViewMessages";
 
 const Container = styled.div<{ isDarkMode: any }>`
   flex: 1;
@@ -36,29 +44,22 @@ interface AppProps {
 
 const App = (props: AppProps) => {
   const history = useHistory();
-  const [players, setPlayers] = useState<Player[] | undefined>([]);
-  const [mappedPlayers, setMappedPlayers] = useState<any>(null);
+  const [playerJob, setPlayerJob] = useState("police");
+  const [jobs, setJobs] = useState<Job[] | undefined>([]);
 
-  const isDarkMode = props.theme.palette.mode === 'dark';
-
-  useEffect(() => {
-    fetchNui<ServerPromiseResp<Player[]>>('npwd:services:getPlayers').then((resp) => {
-      setPlayers(resp.data);
-    });
-  }, []);
-
+  const isDarkMode = props.theme.palette.mode === "dark";
 
   useEffect(() => {
-    if (players) {
-      const mappedPlayer = players?.reduce((playersGroup: any, player: any) => {
-        if (!playersGroup[player.job]) playersGroup[player.job] = [];
-        playersGroup[player.job].push(player);
-        return playersGroup;
-      }, {});
-
-      setMappedPlayers(mappedPlayer);
+    if (isEnvBrowser()) {
+      setJobs(MockJobs);
+    } else {
+      fetchNui<ServerPromiseResp<Job[]>>("npwd:services:getJobs").then(
+        (resp) => {
+          setJobs(resp.data);
+        }
+      );
     }
-  }, [players]);
+  }, []);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -72,7 +73,17 @@ const App = (props: AppProps) => {
               Services
             </Typography>
           </Header>
-          {mappedPlayers && <PlayersList isDarkMode={isDarkMode} players={mappedPlayers} />}
+
+          <Route path={"/"} exact>
+            <JobsList jobs={jobs || []} playerJob={playerJob} />
+          </Route>
+
+          <Route path={"/messages"}>
+            <ViewMessages
+              playerJob={playerJob}
+              color={jobs?.find((v) => v.name == playerJob)?.color || "red"}
+            />
+          </Route>
         </Container>
       </ThemeProvider>
     </StyledEngineProvider>

@@ -10,17 +10,25 @@ RegisterNetEvent("npwd:services:sendMessage", function(data)
 	local src = source
 	if not src then return end
 
-	local job = data.job
+	local job = data.job.name
 	local content = data.content
-	local anonymous = data.anonymous
-	local phoneNumber = exports.npwd.getPlayerData({ source = src }).phoneNumber
+	local phoneNumber = data.phoneNumber
+	local anonymous = data.anonymous or false
+
 
 	messages[job] = messages[job] or {}
-
 	messages[job][#messages[job] + 1] = {
 		job = job,
 		content = content,
 		anonymous = anonymous,
 		senderNumber = phoneNumber,
 	}
+
+	-- local players = QBCore.Functions.GetQBPlayers()
+
+	-- for _, v in pairs(players) do
+	-- 	if v.PlayerData.job.name == job then
+	-- 		TriggerClientEvent("npwd_services:notify", v.PlayerData.source)
+	-- 	end
+	-- end
 end)

@@ -15,12 +15,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import fetchNui from "../utils/fetchNui";
 import { NavLink } from "react-router-dom";
 import { isEnvBrowser } from "../utils/misc";
-import { CheckBox } from "@mui/icons-material";
+import { usePlayerJob, useServiceJobs } from "../atoms/service-atoms";
 
-interface JobsListProps {
-  jobs: Job[];
-  playerJob: string;
-}
+interface JobsListProps {}
 
 interface JobBoxProps {
   job: Job;
@@ -74,7 +71,7 @@ export const JobBox: React.FC<JobBoxProps> = ({ job, playerJob }) => {
           </IconButton>
 
           {playerJob == job.name && (
-            <NavLink to={"/messages"}>
+            <NavLink to={"/services/messages"}>
               <IconButton sx={{ color: "white" }}>
                 <ViewIcon />
               </IconButton>
@@ -114,7 +111,10 @@ export const JobBox: React.FC<JobBoxProps> = ({ job, playerJob }) => {
   );
 };
 
-export const JobsList: React.FC<JobsListProps> = ({ jobs, playerJob }) => {
+export const JobsList: React.FC<JobsListProps> = () => {
+  const jobs = useServiceJobs();
+  const playerJob = usePlayerJob();
+
   return (
     <Box
       sx={{

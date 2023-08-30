@@ -1,41 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import { Message } from "../types/service";
-import { isEnvBrowser } from "../utils/misc";
-import { MockMessages } from "../utils/constants";
-import { ServerPromiseResp } from "../types/common";
 import fetchNui from "../utils/fetchNui";
 import CallIcon from "@mui/icons-material/Call";
+import { usePlayerJob } from "../atoms/service-atoms";
 
-interface ViewMessagesProps {
-  playerJob: string;
-  color: string;
-}
+interface ViewMessagesProps {}
 
-export const ViewMessages: React.FC<ViewMessagesProps> = ({
-  playerJob,
-  color,
-}) => {
+export const ViewMessages: React.FC<ViewMessagesProps> = () => {
+  const playerJob = usePlayerJob();
   const [messages, setMessages] = useState<Message[] | undefined>([]);
 
+  const getMessages = async () => {
+    const data = await fetchNui<Message[]>("npwd:services:getMessages", {
+      job: playerJob,
+    });
+    setMessages(data);
+  };
+
   useEffect(() => {
-    if (isEnvBrowser()) {
-      setMessages(MockMessages.filter((v) => v.job == playerJob));
-    } else {
-      fetchNui<ServerPromiseResp<Message[]>>("npwd:services:getMessages", {
-        job: playerJob,
-      }).then((resp) => {
-        setMessages(resp.data);
-      });
-    }
+    getMessages();
   }, []);
 
   const handleStartCall = (number: string) => {
-    fetchNui<ServerPromiseResp>("npwd:services:callPlayer", {
+    fetchNui("npwd:services:callPlayer", {
       number,
       playerJob,
-    }).then((res) => {
-      console.log(res.data);
     });
   };
 
@@ -45,7 +35,7 @@ export const ViewMessages: React.FC<ViewMessagesProps> = ({
         return (
           <Box
             sx={{
-              backgroundColor: color,
+              backgroundColor: "black",
               padding: "0.3rem 0.5rem 0.5rem",
               borderRadius: "0.3rem",
             }}

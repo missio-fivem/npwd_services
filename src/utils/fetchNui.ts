@@ -5,30 +5,33 @@
  *
  * @return returnData - A promise for the data sent back by the NuiCallbacks CB argument
  */
-import { isEnvBrowser } from './misc';
+import { isEnvBrowser } from "./misc";
 
-async function fetchNui<T = any, D = any>(eventName: string, data?: D, mockResp?: T): Promise<T> {
-	const options = {
-		method: 'post',
-		headers: {
-			'Content-Type': 'application/json; charset=UTF-8',
-		},
-		body: JSON.stringify(data),
-	};
-	
-	if (isEnvBrowser() && mockResp) {
-		return mockResp;
-	}
+async function fetchNui<T = any, D = any>(
+  eventName: string,
+  data?: D,
+  mockResp?: T
+): Promise<T> {
+  const options = {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+    },
+    body: JSON.stringify(data),
+  };
 
+  if (isEnvBrowser() && mockResp) {
+    return mockResp;
+  }
 
-	const resourceName = "npwd_services";
-	
-	const resp = await fetch(`https://${resourceName}/${eventName}`, options);
-	
-	const responseObj = await resp.json();
-	
-	
-	return responseObj;
+  const resourceName = "npwd_services";
+
+  const resp = await fetch(`https://${resourceName}/${eventName}`, options);
+
+  const responseObj = await resp.json();
+  console.log(JSON.stringify(responseObj), eventName);
+
+  return responseObj;
 }
 
 export default fetchNui;

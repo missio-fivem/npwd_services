@@ -29,7 +29,6 @@ async function fetchNui<T = any, D = any>(
   const resp = await fetch(`https://${resourceName}/${eventName}`, options);
 
   const responseObj = await resp.json();
-  console.log(JSON.stringify(responseObj), eventName);
 
   return responseObj;
 }
